@@ -18,10 +18,13 @@ switch (cmd) {
     // eslint-disable-next-line no-console
     console.log(add(argv[0], argv[1], argv[2]))
     break
-  case 'test':
+  case 'test': {
+    const info = argv[0]
     // eslint-disable-next-line no-console
-    test(argv[0]).then(console.log)
+    const log = ['-i', '--info'].includes(info) ? console.table : console.log
+    test(info).then(log)
     break
+  }
   case 'del':
   case 'delete':
   case 'rm':

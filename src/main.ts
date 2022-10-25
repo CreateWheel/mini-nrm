@@ -82,16 +82,18 @@ export function add(name: string, registry: string, home?: string) {
 }
 
 type response = {
-  code: number
-  total: number
-  DNS: number
-  TCP: number
-  start_transfer: number
-  redirect: number
+  code: string
+  total: string
+  DNS: string
+  TCP: string
+  start_transfer: string
+  redirect: string
   effective: string
   error: string
 }
-export function test(full: string) {
+export function test(info?: string) {
+  const TIMEOUT = 'Timeout'
+  const isInfo = ['-i', '--info'].includes(info as string)
   const promises = // eslint-disable-next-line max-statements
     Object.keys(registriesAll).map((key) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -128,21 +130,24 @@ export function test(full: string) {
       }
 
       const time = Date.now() - startTime
-      const msg = time > 5000 ? 'Timeout' : `${time} ms`
+      const msg = time > 5000 ? TIMEOUT : `${time} ms`
 
       let color
-      if (time < 1000) color = logger.yellow(msg)
       if (time < 500) color = logger.green(msg)
+      else if (time < 1000) color = logger.yellow(msg)
       else color = logger.red(msg)
 
-      if (!['-i', '--info'].includes(full)) {
-        const prefix = `${key} ${ph}`
-        const currentColor = isCurrent ? logger.green('* ' + prefix) : '  ' + prefix
-
-        return `${currentColor} ${color}`
-      }
       const json: response = JSON.parse(result.stdout)
 
+      // Simple Output
+      if (!isInfo) {
+        if (json.code === '000') color = logger.red(TIMEOUT)
+        const prefix = `${key} ${ph}`
+        const currentColor = isCurrent ? logger.green('* ' + prefix) : '  ' + prefix
+        return `${currentColor} ${color}`
+      }
+
+      // Detailed Output
       const s2msArr = ['total', 'DNS', 'TCP', 'start_transfer', 'redirect']
       for (const key in json) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -151,12 +156,16 @@ export function test(full: string) {
         if (s2msArr.includes(key)) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-extra-semi
           ;(json as any)[key] = s2ms(value) + 'ms'
+
+          if (json.code === '000') json.total = TIMEOUT
         }
       }
       return json
     })
 
-  return Promise.all(promises).then((data) => data.join('\n'))
+  return Promise.all(promises).then((data) => {
+    return isInfo ? data : data.join('\n')
+  })
 }
 export function remove(name: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -173,6 +182,7 @@ export function remove(name: string) {
   if (names) return `\n  Available registry for deletion: ${names}`
   return logger.yellow('\n  There are no more registries that can be deleted')
 }
+/* eslint-disable max-len */
 export function help() {
   // eslint-disable-next-line no-console
   return `
@@ -213,18 +223,15 @@ export function help() {
 
     $ ${logger.yellow('mnrm test -i')}
 
-      ┌────────────────┬───────────────────────────────┐
-      │    (index)     │            Values             │
-      ├────────────────┼───────────────────────────────┤
-      │      name      │             'npm'             │
-      │      code      │             '000'             │
-      │     total      │           '1488ms'            │
-      │      DNS       │            '35ms'             │
-      │      TCP       │           '1386ms'            │
-      │ start_transfer │             '0ms'             │
-      │    redirect    │             '0ms'             │
-      │   effective    │ 'https://registry.npmjs.org/' │
-      └────────────────┴───────────────────────────────┘
-      # Omit ...
+      ┌─────────┬─────────────┬───────┬───────────┬─────────┬─────────┬────────────────┬──────────┬──────────────────────────────────────────┐
+      │ (index) │    name     │ code  │   total   │   DNS   │   TCP   │ start_transfer │ redirect │                effective                 │
+      ├─────────┼─────────────┼───────┼───────────┼─────────┼─────────┼────────────────┼──────────┼──────────────────────────────────────────┤
+      │    0    │    'npm'    │ '000' │ 'Timeout' │ '27ms'  │  '0ms'  │     '0ms'      │  '0ms'   │      'https://registry.npmjs.org/'       │
+      │    1    │   'yarn'    │ '000' │ 'Timeout' │ '32ms'  │  '0ms'  │     '0ms'      │  '0ms'   │     'https://registry.yarnpkg.com/'      │
+      │    2    │  'taobao'   │ '200' │  '654ms'  │ '41ms'  │ '214ms' │    '653ms'     │  '0ms'   │    'https://registry.npmmirror.com/'     │
+      │    3    │  'tencent'  │ '200' │ '1159ms'  │ '251ms' │ '452ms' │    '1159ms'    │  '0ms'   │ 'https://mirrors.cloud.tencent.com/npm/' │
+      │    4    │ 'npmMirror' │ '000' │ 'Timeout' │ '22ms'  │  '0ms'  │     '0ms'      │  '0ms'   │   'https://skimdb.npmjs.com/registry/'   │
+      │    5    │  'github'   │ '200' │ '2302ms'  │ '287ms' │ '775ms' │    '2301ms'    │ '1179ms' │  'https://github.com/features/packages'  │
+      └─────────┴─────────────┴───────┴───────────┴─────────┴─────────┴────────────────┴──────────┴──────────────────────────────────────────┘
     `
 }
