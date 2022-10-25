@@ -1,6 +1,6 @@
 {
   "name": "mini-nrm",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "Mini npm registry manager",
   "main": "dist/src/main.js",
   "scripts": {
