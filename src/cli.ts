@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { list, use, add, test, remove, help } from './main'
-import { version } from '../package.json'
 
 const [cmd, ...argv] = process.argv.slice(2)
 
@@ -33,7 +32,7 @@ switch (cmd) {
   case '-v':
   case '--version':
     // eslint-disable-next-line no-console
-    console.log(`v${version}`)
+    console.log('v1.0.0-beta.0')
     break
   case 'h':
   case '-h':

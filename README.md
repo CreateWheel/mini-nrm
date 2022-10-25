@@ -12,7 +12,7 @@
 Super lightweight npm registry manager
 
 - **No dependencies.**
-- [mini-nrm](https://packagephobia.com/result?p=mini-nrm) ~ **4kb** | [nnrm](https://packagephobia.com/result?p=nnrm) ~ **7.8mb** | [nrm](https://packagephobia.com/result?p=nrm) ~ **15mb**
+- [mini-nrm](https://packagephobia.com/result?p=mini-nrm) ~ **5kb** | [nnrm](https://packagephobia.com/result?p=nnrm) ~ **7.8mb** | [nrm](https://packagephobia.com/result?p=nrm) ~ **15mb**
 - TypeScript type declarations included.
 
 ## Install
