@@ -63,19 +63,16 @@ npm install -g mini-nrm
 
     $ mnrm test -i
 
-      ┌────────────────┬───────────────────────────────┐
-      │    (index)     │            Values             │
-      ├────────────────┼───────────────────────────────┤
-      │      name      │             'npm'             │
-      │      code      │             '000'             │
-      │     total      │           '1488ms'            │
-      │      DNS       │            '35ms'             │
-      │      TCP       │           '1386ms'            │
-      │ start_transfer │             '0ms'             │
-      │    redirect    │             '0ms'             │
-      │   effective    │ 'https://registry.npmjs.org/' │
-      └────────────────┴───────────────────────────────┘
-      # Omit ...
+      ┌─────────┬─────────────┬───────┬───────────┬─────────┬─────────┬────────────────┬──────────┬──────────────────────────────────────────┐
+      │ (index) │    name     │ code  │   total   │   DNS   │   TCP   │ start_transfer │ redirect │                effective                 │
+      ├─────────┼─────────────┼───────┼───────────┼─────────┼─────────┼────────────────┼──────────┼──────────────────────────────────────────┤
+      │    0    │    'npm'    │ '000' │ 'Timeout' │ '27ms'  │  '0ms'  │     '0ms'      │  '0ms'   │      'https://registry.npmjs.org/'       │
+      │    1    │   'yarn'    │ '000' │ 'Timeout' │ '32ms'  │  '0ms'  │     '0ms'      │  '0ms'   │     'https://registry.yarnpkg.com/'      │
+      │    2    │  'taobao'   │ '200' │  '654ms'  │ '41ms'  │ '214ms' │    '653ms'     │  '0ms'   │    'https://registry.npmmirror.com/'     │
+      │    3    │  'tencent'  │ '200' │ '1159ms'  │ '251ms' │ '452ms' │    '1159ms'    │  '0ms'   │ 'https://mirrors.cloud.tencent.com/npm/' │
+      │    4    │ 'npmMirror' │ '000' │ 'Timeout' │ '22ms'  │  '0ms'  │     '0ms'      │  '0ms'   │   'https://skimdb.npmjs.com/registry/'   │
+      │    5    │  'github'   │ '200' │ '2302ms'  │ '287ms' │ '775ms' │    '2301ms'    │ '1179ms' │  'https://github.com/features/packages'  │
+      └─────────┴─────────────┴───────┴───────────┴─────────┴─────────┴────────────────┴──────────┴──────────────────────────────────────────┘
 ```
 
 ## JavaScript API
