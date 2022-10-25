@@ -1,0 +1,3 @@
+extension: ts
+spec: src/**/__tests__/*.ts
+require: ts-node/register

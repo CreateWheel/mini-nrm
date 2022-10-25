@@ -1,0 +1,8 @@
+trailingComma: none # Whether to add a comma at the end of an object or array es5|none|all
+tabWidth: 2 # indent
+printWidth: 120 # Line feed after 120 characters
+semi: false # Whether to add a semicolon at the end
+singleQuote: true # Whether to use single quotes
+# always：(x) => x
+# avoid：x => x
+arrowParens: always # Arrow functions with only one argument
