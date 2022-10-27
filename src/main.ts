@@ -42,6 +42,30 @@ function s2ms(s: number) {
   return parseInt((s * 1000) as unknown as string)
 }
 
+function onCurl(name: string, registry: string) {
+  const args = [
+    '--connect-timeout', // Set timeout time in seconds
+    '5',
+    '-o', // Put the response content into dev/null to destroy
+    '/dev/null',
+    '-s', // No output of error and progress information
+    '-w',
+    `{
+     "name":"${name}",
+     "code":"%{http_code}",
+     "total":%{time_total},
+     "DNS":%{time_namelookup},
+     "TCP":%{time_connect},
+     "start_transfer":%{time_starttransfer},
+     "redirect":%{time_redirect},
+     "effective":"%{url_effective}"
+    }`,
+    registry + 'mini-nrm',
+    '-L' // redirects
+  ]
+  return cp.spawnSync('curl', args, { encoding: 'utf8' })
+}
+
 export function list() {
   let output = '\n'
 
@@ -51,7 +75,8 @@ export function list() {
     const registry = `${isCurrent ? '*' : ' '} ${k} ${ph} ${v.registry}\n`
     output += isCurrent ? logger.green(registry) : registry
   }
-  return output
+
+  return output.trimEnd()
 }
 export function use(name: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,25 +85,28 @@ export function use(name: string) {
     current = registry.registry
     spawnSync(['config', 'set', 'registry', current])
     return list()
-  } else {
-    const registrys = Object.keys(registriesAll)
-      .map((item) => logger.yellow(item))
-      .join(', ')
-    return `\n  Available registry: ${registrys}`
   }
+
+  const registrys = Object.keys(registriesAll).map(logger.yellow).join(', ')
+  return `\n  Available registry: ${registrys}`
 }
 export function add(name: string, registry: string, home?: string) {
   if (name && registry && isHttp(registry)) {
+    // If a custom added registry is already in place, it will not be added and will warn
+    const isExists = Object.entries(registriesAll).some((item) => item[1].registry === registry)
+    if (isExists) {
+      const warn = logger.yellow(registry)
+      return `\n  The ${warn} you specified already exists, please do not add the same registry again and again`
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-extra-semi
     ;(customRegistries as any)[name] = { home, registry }
     saveRegistries()
     return list()
-  } else {
-    // eslint-disable-next-line no-console, max-len
-    return `\n  mnrm add <name> <registry> [home]\n  Example: ${logger.yellow(
-      '"mnrm add npm https://registry.npmjs.org/ https://www.npmjs.org"'
-    )}`
   }
+
+  const example = logger.yellow('"mnrm add npm https://registry.npmjs.org/ https://www.npmjs.org"')
+  return `\n  mnrm add <name> <registry> [home]\n  Example: ${example}`
 }
 
 type response = {
@@ -94,78 +122,61 @@ type response = {
 export function test(info?: string) {
   const TIMEOUT = 'Timeout'
   const isInfo = ['-i', '--info'].includes(info as string)
-  const promises = // eslint-disable-next-line max-statements
-    Object.keys(registriesAll).map((key) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const registry = (registriesAll as any)[key].registry
-      const isCurrent = registry === current
-      const ph = new Array(Math.max(maxCharWidth - key.length + 1)).join('-')
-      const startTime = Date.now()
-      const args = [
-        '--connect-timeout', // Set timeout time in seconds
-        '5',
-        '-o', // Put the response content into dev/null to destroy
-        '/dev/null',
-        '-s', // No output of error and progress information
-        '-w',
-        `{
-        "name":"${key}",
-        "code":"%{http_code}",
-        "total":%{time_total},
-        "DNS":%{time_namelookup},
-        "TCP":%{time_connect},
-        "start_transfer":%{time_starttransfer},
-        "redirect":%{time_redirect},
-        "effective":"%{url_effective}"
-      }`,
-        registry,
-        '-L' // redirects
-      ]
-      const result = cp.spawnSync('curl', args, { encoding: 'utf8' })
-
-      const error = 'Your device does not have "curl" installed, this function is not available'
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (result.error && (result.error as any).code === 'ENOENT') {
-        return logger.red(error)
-      }
-
-      const time = Date.now() - startTime
-      const msg = time > 5000 ? TIMEOUT : `${time} ms`
-
-      let color
-      if (time < 500) color = logger.green(msg)
-      else if (time < 1000) color = logger.yellow(msg)
-      else color = logger.red(msg)
-
-      const json: response = JSON.parse(result.stdout)
-
-      // Simple Output
-      if (!isInfo) {
-        if (json.code === '000') color = logger.red(TIMEOUT)
-        const prefix = `${key} ${ph}`
-        const currentColor = isCurrent ? logger.green('* ' + prefix) : '  ' + prefix
-        return `${currentColor} ${color}`
-      }
-
-      // Detailed Output
-      const s2msArr = ['total', 'DNS', 'TCP', 'start_transfer', 'redirect']
-      for (const key in json) {
+  try {
+    const promises = // eslint-disable-next-line max-statements
+      Object.keys(registriesAll).map((key) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const value = (json as any)[key]
+        const registry = (registriesAll as any)[key].registry
+        const isCurrent = registry === current
+        const ph = new Array(Math.max(maxCharWidth - key.length + 1)).join('-')
 
-        if (s2msArr.includes(key)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-extra-semi
-          ;(json as any)[key] = s2ms(value) + 'ms'
+        const startTime = Date.now()
+        const result = onCurl(key, registry)
+        const time = Date.now() - startTime
 
-          if (json.code === '000') json.total = TIMEOUT
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (result.error && (result.error as any).code === 'ENOENT') throw new Error()
+
+        const msg = time > 5000 ? TIMEOUT : `${time} ms`
+
+        let color
+        if (time < 500) color = logger.green(msg)
+        else if (time < 1000) color = logger.yellow(msg)
+        else color = logger.red(msg)
+
+        const json: response = JSON.parse(result.stdout)
+
+        // Simple Output
+        if (!isInfo) {
+          if (json.code === '000') color = logger.red(TIMEOUT)
+          const prefix = `${key} ${ph}`
+          const currentColor = isCurrent ? logger.green('* ' + prefix) : '  ' + prefix
+          return `${currentColor} ${color}`
         }
-      }
-      return json
-    })
 
-  return Promise.all(promises).then((data) => {
-    return isInfo ? data : data.join('\n')
-  })
+        // Detailed Output
+        const s2msArr = ['total', 'DNS', 'TCP', 'start_transfer', 'redirect']
+        for (const key in json) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const value = (json as any)[key]
+
+          if (s2msArr.includes(key)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-extra-semi
+            ;(json as any)[key] = s2ms(value) + 'ms'
+
+            if (json.code === '000') json.total = TIMEOUT
+          }
+        }
+        return json
+      })
+
+    return Promise.all(promises).then((data) => {
+      return isInfo ? data : '\n' + data.join('\n')
+    })
+  } catch (error) {
+    const err = '\n  Your device does not have "curl" installed, this function is not available'
+    return Promise.resolve(logger.red(err))
+  }
 }
 export function remove(name: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -176,10 +187,9 @@ export function remove(name: string) {
     saveRegistries()
     return list()
   }
-  const names = Object.keys(customRegistries)
-    .map((item) => logger.yellow(item))
-    .join(', ')
+  const names = Object.keys(customRegistries).map(logger.yellow).join(', ')
   if (names) return `\n  Available registry for deletion: ${names}`
+
   return logger.yellow('\n  There are no more registries that can be deleted')
 }
 /* eslint-disable max-len */
