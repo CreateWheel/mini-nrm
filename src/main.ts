@@ -92,6 +92,8 @@ export function use(name: string) {
 }
 export function add(name: string, registry: string, home?: string) {
   if (name && registry && isHttp(registry)) {
+    // Must end with "/"
+    if (!registry.endsWith('/')) registry = registry + '/'
     // If a custom added registry is already in place, it will not be added and will warn
     const isExists = Object.entries(registriesAll).some((item) => item[1].registry === registry)
     if (isExists) {
