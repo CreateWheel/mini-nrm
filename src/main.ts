@@ -180,15 +180,24 @@ export function test(info?: string) {
     return Promise.resolve(logger.red(err))
   }
 }
-export function remove(name: string) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const existsRegistry = (customRegistries as any)[name]
-  if (existsRegistry) {
+export function remove(...args: string[]) {
+  let isRemove
+
+  for (const arg of args) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (customRegistries as any)[name]
+    const existsRegistry = (customRegistries as any)[arg]
+    if (existsRegistry) {
+      isRemove = true
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (customRegistries as any)[arg]
+    }
+  }
+
+  if (isRemove) {
     saveRegistries()
     return list()
   }
+
   const names = Object.keys(customRegistries).map(logger.yellow).join(', ')
   if (names) return `\n  Available registry for deletion: ${names}`
 
@@ -201,12 +210,12 @@ export function help() {
   Usage
     $ mnrm [options]
   Options
-    ls, list                          List all the registries
-    use <name>                        Switching the registry
-    add <name> <registry> [home]      Add a custom registry
-    test [-i, --info]                 Test the response time of all registries
-    del, delete, rm, remove <name>    Remove a custom registry
-    h, -h, help, --help               Show this help
+    ls, list                            List all the registries
+    use <name>                          Switching the registry
+    add <name> <registry> [home]        Add a custom registry
+    test [-i, --info]                   Test the response time of all registries
+    del, delete, rm, remove <name...>   Remove a custom registry
+    h, -h, help, --help                 Show this help
   Examples
   
     $ ${logger.yellow('mnrm add npm https://registry.npmjs.org/')}

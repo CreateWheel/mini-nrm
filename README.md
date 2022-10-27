@@ -13,6 +13,8 @@ Super lightweight npm registry manager
 
 - **No dependencies.**
 - [mini-nrm](https://packagephobia.com/result?p=mini-nrm) ~ **20kB** | [nnrm](https://packagephobia.com/result?p=nnrm) ~ **7MB** | [nrm](https://packagephobia.com/result?p=nrm) ~ **15MB**
+- Customizing the registry image
+- Test response speed details
 - TypeScript type declarations included.
 
 ## Install
@@ -21,20 +23,26 @@ Super lightweight npm registry manager
 npm install -g mini-nrm
 ```
 
+Because it is very slim, you can use `npx` to manage the registry image directly without installing it
+
+```bash
+npx mini-nrm --help
+```
+
 ## Usage
 
-`mnrm -h`: Show this help
+`mnrm --help`: Show this help
 
 ```bash
   Usage
     $ mnrm [options]
   Options
-    ls, list                          List all the registries
-    use <name>                        Switching the registry
-    add <name> <registry> [home]      Add a custom registry
-    test [-i, --info]                 Test the response time of all registries
-    del, delete, rm, remove <name>    Remove a custom registry
-    h, -h, help, --help               Show this help
+    ls, list                            List all the registries
+    use <name>                          Switching the registry
+    add <name> <registry> [home]        Add a custom registry
+    test [-i, --info]                   Test the response time of all registries
+    del, delete, rm, remove <name...>   Remove a custom registry
+    h, -h, help, --help                 Show this help
   Examples
 
     $ mnrm add npm https://registry.npmjs.org/

@@ -30,7 +30,7 @@ switch (cmd) {
   case 'rm':
   case 'remove':
     // eslint-disable-next-line no-console
-    console.log(remove(argv[0]))
+    console.log(remove(...argv))
     break
   case '-v':
   case '--version':
