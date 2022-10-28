@@ -16,6 +16,9 @@ Super lightweight npm registry manager
 - Customizing the registry image
 - Test response speed details
 - TypeScript type declarations included.
+<p align="center">
+<img src="images/mini-nrm.gif" style="width: 80%;">
+</p>
 
 ## Install
 
