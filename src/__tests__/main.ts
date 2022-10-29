@@ -14,13 +14,13 @@ describe('tests', () => {
 
     let customRegistries = readFileSync(join(__dirname, '../../custom_registries.json'), 'utf8')
     customRegistries = JSON.parse(customRegistries)
-    strictEqual(home, (customRegistries as any).npm.home)
-    strictEqual(registry, (customRegistries as any).npm.registry)
+    strictEqual((customRegistries as any).npm.home, home)
+    strictEqual((customRegistries as any).npm.registry, registry + '/')
     remove('npm')
 
     customRegistries = readFileSync(join(__dirname, '../../custom_registries.json'), 'utf8')
     customRegistries = JSON.parse(customRegistries)
-    strictEqual(registry + 2, (customRegistries as any).npm2.registry)
+    strictEqual((customRegistries as any).npm2.registry, registry + '2/')
     remove('npm2')
   })
   // This is a destructive test
