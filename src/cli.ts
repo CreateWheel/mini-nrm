@@ -35,7 +35,7 @@ switch (cmd) {
   case '-v':
   case '--version':
     // eslint-disable-next-line no-console
-    console.log('v1.0.0-beta.5')
+    console.log('v1.0.0-beta.6')
     break
   case 'h':
   case '-h':
