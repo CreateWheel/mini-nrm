@@ -11,7 +11,7 @@ function spawnSync(params: string[]) {
   return cp.spawnSync(NPM, params, { encoding: 'utf8' }).stdout
 }
 
-let current = spawnSync(['config', 'get', 'registry']).trim()
+let current: string
 const maxCharWidth = Math.max(...Object.keys(registriesAll).map((key) => key.length)) + 3
 
 /**
@@ -27,6 +27,10 @@ export const logger = {
   yellow(str: string) {
     return `\x1b[33m${str}\x1b[39m`
   }
+}
+
+function getCurrentRegistry() {
+  return spawnSync(['config', 'get', 'registry']).trim()
 }
 
 function isHttp(str: string) {
@@ -68,6 +72,7 @@ function onCurl(name: string, registry: string) {
 
 export function list() {
   let output = ''
+  if (!current) current = getCurrentRegistry()
 
   for (const [k, v] of Object.entries(registriesAll)) {
     const isCurrent = v.registry === current
@@ -124,6 +129,8 @@ type response = {
 export function test(info?: string) {
   const TIMEOUT = 'Timeout'
   const isInfo = ['-i', '--info'].includes(info as string)
+  if (!current) current = getCurrentRegistry()
+
   try {
     const promises = // eslint-disable-next-line max-statements
       Object.keys(registriesAll).map((key) => {
