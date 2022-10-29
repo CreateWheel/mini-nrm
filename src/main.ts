@@ -67,7 +67,7 @@ function onCurl(name: string, registry: string) {
 }
 
 export function list() {
-  let output = '\n'
+  let output = ''
 
   for (const [k, v] of Object.entries(registriesAll)) {
     const isCurrent = v.registry === current
@@ -88,7 +88,7 @@ export function use(name: string) {
   }
 
   const registrys = Object.keys(registriesAll).map(logger.yellow).join(', ')
-  return `\n  Available registry: ${registrys}`
+  return `  Available registry: ${registrys}`
 }
 export function add(name: string, registry: string, home?: string) {
   if (name && registry && isHttp(registry)) {
@@ -98,7 +98,7 @@ export function add(name: string, registry: string, home?: string) {
     const isExists = Object.entries(registriesAll).some((item) => item[1].registry === registry)
     if (isExists) {
       const warn = logger.yellow(registry)
-      return `\n  The ${warn} you specified already exists, please do not add the same registry again and again`
+      return `  The ${warn} you specified already exists, please do not add the same registry again and again`
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-extra-semi
@@ -108,7 +108,7 @@ export function add(name: string, registry: string, home?: string) {
   }
 
   const example = logger.yellow('"mnrm add npm https://registry.npmjs.org/ https://www.npmjs.org"')
-  return `\n  mnrm add <name> <registry> [home]\n  Example: ${example}`
+  return `  mnrm add <name> <registry> [home]\n  Example: ${example}`
 }
 
 type response = {
@@ -173,10 +173,10 @@ export function test(info?: string) {
       })
 
     return Promise.all(promises).then((data) => {
-      return isInfo ? data : '\n' + data.join('\n')
+      return isInfo ? data : data.join('\n')
     })
   } catch (error) {
-    const err = '\n  Your device does not have "curl" installed, this function is not available'
+    const err = '  Your device does not have "curl" installed, this function is not available'
     return Promise.resolve(logger.red(err))
   }
 }
@@ -199,9 +199,9 @@ export function remove(...args: string[]) {
   }
 
   const names = Object.keys(customRegistries).map(logger.yellow).join(', ')
-  if (names) return `\n  Available registry for deletion: ${names}`
+  if (names) return `  Available registry for deletion: ${names}`
 
-  return logger.yellow('\n  There are no more registries that can be deleted')
+  return logger.yellow('  There are no more registries that can be deleted')
 }
 /* eslint-disable max-len */
 export function help() {
