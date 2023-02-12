@@ -12,7 +12,7 @@ switch (cmd) {
     break
   case 'use':
     // eslint-disable-next-line no-console
-    console.log(use(argv[0]))
+    console.log(use(argv.shift() || '', argv))
     break
   case 'add':
     // eslint-disable-next-line no-console

@@ -83,9 +83,17 @@ export function list() {
 
   return output.trimEnd()
 }
-export function use(name: string) {
+
+export function use(name: string, argv: string[] = []) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const registry = (registriesAll as any)[name as string]
+  if (argv && Array.isArray(argv)) {
+    argv.unshift('install')
+    argv.push('--registry')
+    argv.push(registry.registry)
+    cp.spawnSync(NPM, argv, { encoding: 'utf8', cwd: process.cwd(), stdio: 'inherit' })
+    return ''
+  }
   if (registry) {
     current = registry.registry
     spawnSync(['config', 'set', 'registry', current])
@@ -95,6 +103,7 @@ export function use(name: string) {
   const registrys = Object.keys(registriesAll).map(logger.yellow).join(', ')
   return `  Available registry: ${registrys}`
 }
+
 export function add(name: string, registry: string, home?: string) {
   if (name && registry && isHttp(registry)) {
     // Must end with "/"
@@ -126,6 +135,7 @@ type response = {
   effective: string
   error: string
 }
+
 export function test(info?: string) {
   const TIMEOUT = 'Timeout'
   const isInfo = ['-i', '--info'].includes(info as string)
@@ -187,6 +197,7 @@ export function test(info?: string) {
     return Promise.resolve(logger.red(err))
   }
 }
+
 export function remove(...args: string[]) {
   let isRemove
 
@@ -217,7 +228,7 @@ export function help() {
     $ mnrm [options]
   Options
     ls, list                            List all the registries
-    use <name>                          Switching the registry
+    use <name> [package...]             Switch registry or specify registry directly to install npm packages
     add <name> <registry> [home]        Add a custom registry
     test [-i, --info]                   Test the response time of all registries
     del, delete, rm, remove <name...>   Remove a custom registry
@@ -225,10 +236,10 @@ export function help() {
   Examples
   
     $ ${logger.yellow('mnrm add npm https://registry.npmjs.org/')}
-    # or
-    $ ${logger.yellow('mnrm add npm https://registry.npmjs.org/ https://www.npmjs.org')}
 
     $ ${logger.yellow('mnrm use npm')}
+
+    $ ${logger.yellow('mnrm use taobao output-line get-user-ip body-data simple-unique -S')}
 
     $ ${logger.yellow('mnrm list')}
 
@@ -237,15 +248,13 @@ export function help() {
         taobao ------ https://registry.npmmirror.com/
         tencent ----- https://mirrors.cloud.tencent.com/npm/
         npmMirror --- https://skimdb.npmjs.com/registry/
-        github ------ https://npm.pkg.github.com/
     
     $ ${logger.yellow('mnrm test')}
 
       ${logger.green(`* npm --------- ${logger.green('153 ms')}`)}
         yarn -------- ${logger.green('175 ms')}
-        taobao ------ ${logger.green('519 ms')}
+        taobao ------ ${logger.yellow('519 ms')}
         tencent ----- ${logger.green('121 ms')}
         npmMirror --- ${logger.green('481 ms')}
-        github ------ ${logger.yellow('169 ms')}
-    `
+`
 }

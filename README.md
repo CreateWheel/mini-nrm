@@ -34,6 +34,14 @@ npx mini-nrm --help
 
 ## Usage
 
+> This command does not modify the registry, it just uses the specified registry to install the dependencies
+>
+> It uses the `taobao` registry to install `output-line` `get-user-ip ` `body-data` `simple-unique`
+```diff
+-npm install output-line get-user-ip body-data simple-unique -S
++mnrm use taobao output-line get-user-ip body-data simple-unique -S
+```
+
 `mnrm --help`: Show this help
 
 ```bash
@@ -41,7 +49,7 @@ npx mini-nrm --help
     $ mnrm [options]
   Options
     ls, list                            List all the registries
-    use <name>                          Switching the registry
+    use <name> [package...]             Switch registry or specify registry directly to install npm packages
     add <name> <registry> [home]        Add a custom registry
     test [-i, --info]                   Test the response time of all registries
     del, delete, rm, remove <name...>   Remove a custom registry
@@ -49,10 +57,10 @@ npx mini-nrm --help
   Examples
 
     $ mnrm add npm https://registry.npmjs.org/
-    # or
-    $ mnrm add npm https://registry.npmjs.org/ https://www.npmjs.org
 
     $ mnrm use npm
+
+    $ mnrm use taobao output-line get-user-ip body-data simple-unique -S
 
     $ mnrm list
 
@@ -61,7 +69,6 @@ npx mini-nrm --help
         taobao ------ https://registry.npmmirror.com/
         tencent ----- https://mirrors.cloud.tencent.com/npm/
         npmMirror --- https://skimdb.npmjs.com/registry/
-        github ------ https://npm.pkg.github.com/
 
     $ mnrm test
 
@@ -70,20 +77,7 @@ npx mini-nrm --help
         taobao ------ 519 ms
         tencent ----- 121 ms
         npmMirror --- 481 ms
-        github ------ 169 ms
 
-    $ mnrm test -i
-
-      ┌─────────┬─────────────┬───────┬───────────┬─────────┬─────────┬────────────────┬──────────┬──────────────────────────────────────────┐
-      │ (index) │    name     │ code  │   total   │   DNS   │   TCP   │ start_transfer │ redirect │                effective                 │
-      ├─────────┼─────────────┼───────┼───────────┼─────────┼─────────┼────────────────┼──────────┼──────────────────────────────────────────┤
-      │    0    │    'npm'    │ '000' │ 'Timeout' │ '27ms'  │  '0ms'  │     '0ms'      │  '0ms'   │      'https://registry.npmjs.org/'       │
-      │    1    │   'yarn'    │ '000' │ 'Timeout' │ '32ms'  │  '0ms'  │     '0ms'      │  '0ms'   │     'https://registry.yarnpkg.com/'      │
-      │    2    │  'taobao'   │ '200' │  '654ms'  │ '41ms'  │ '214ms' │    '653ms'     │  '0ms'   │    'https://registry.npmmirror.com/'     │
-      │    3    │  'tencent'  │ '200' │ '1159ms'  │ '251ms' │ '452ms' │    '1159ms'    │  '0ms'   │ 'https://mirrors.cloud.tencent.com/npm/' │
-      │    4    │ 'npmMirror' │ '000' │ 'Timeout' │ '22ms'  │  '0ms'  │     '0ms'      │  '0ms'   │   'https://skimdb.npmjs.com/registry/'   │
-      │    5    │  'github'   │ '200' │ '2302ms'  │ '287ms' │ '775ms' │    '2301ms'    │ '1179ms' │  'https://github.com/features/packages'  │
-      └─────────┴─────────────┴───────┴───────────┴─────────┴─────────┴────────────────┴──────────┴──────────────────────────────────────────┘
 ```
 
 ## JavaScript API
