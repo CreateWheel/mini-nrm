@@ -87,7 +87,7 @@ export function list() {
 export function use(name: string, argv: string[] = []) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const registry = (registriesAll as any)[name as string]
-  if (argv && Array.isArray(argv)) {
+  if (Array.isArray(argv) && argv.length) {
     argv.unshift('install')
     argv.push('--registry')
     argv.push(registry.registry)
