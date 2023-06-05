@@ -3,7 +3,7 @@
 
 <p align="center">
     <a href="https://www.npmjs.com/package/mini-nrm"><img src="https://img.shields.io/npm/v/mini-nrm?logo=npm" alt="Version"></a>
-    <a href="https://github.com/Lete114/visitor-badge"><img src="https://visitor_badge.deta.dev/?pageID=github.CreateWheel.mini-nrm" alt="visitor_badge"></a>
+    <a href="https://github.com/Lete114/visitor-badge"><img src="https://visitor-badge.imlete.cn/?id=github.CreateWheel.mini-nrm" alt="visitor_badge"></a>
     <a href="https://github.com/CreateWheel/mini-nrm/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/mini-nrm?color=FF5531" alt="MIT License"></a>
 </p>
 
